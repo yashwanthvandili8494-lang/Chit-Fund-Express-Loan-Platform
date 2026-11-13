@@ -35,6 +35,9 @@ import { StaffKYCReview } from './pages/staff/StaffKYCReview';
 import { StaffChitApplications } from './pages/staff/StaffChitApplications';
 import { StaffLoanApplications } from './pages/staff/StaffLoanApplications';
 import { StaffCollections } from './pages/staff/StaffCollections';
+import { StaffAttendance } from './pages/staff/StaffAttendance';
+import { StaffLeaves } from './pages/staff/StaffLeaves';
+import { StaffSalary } from './pages/staff/StaffSalary';
 
 // Owner / Admin Pages
 import { AdminDashboard } from './pages/admin/AdminDashboard';
@@ -52,6 +55,11 @@ import { AdminPayments } from './pages/admin/AdminPayments';
 import { AdminReports } from './pages/admin/AdminReports';
 import { AdminAuditLogs } from './pages/admin/AdminAuditLogs';
 import { AdminSettings } from './pages/admin/AdminSettings';
+import { AdminEmployees } from './pages/admin/AdminEmployees';
+import { AdminAttendance } from './pages/admin/AdminAttendance';
+import { AdminLeaves } from './pages/admin/AdminLeaves';
+import { AdminPayroll } from './pages/admin/AdminPayroll';
+import { AdminExpenses } from './pages/admin/AdminExpenses';
 
 export const App: React.FC = () => {
   return (
@@ -85,9 +93,12 @@ export const App: React.FC = () => {
             <Route path="notifications" element={<CustomerNotifications />} />
           </Route>
 
-          {/* 3. STAFF PORTAL */}
+          {/* 3. STAFF / EMPLOYEE PORTAL */}
           <Route path="/staff" element={<StaffLayout />}>
             <Route index element={<StaffDashboard />} />
+            <Route path="attendance" element={<StaffAttendance />} />
+            <Route path="leaves" element={<StaffLeaves />} />
+            <Route path="salary" element={<StaffSalary />} />
             <Route path="kyc" element={<StaffKYCReview />} />
             <Route path="chit-applications" element={<StaffChitApplications />} />
             <Route path="loan-applications" element={<StaffLoanApplications />} />
@@ -99,6 +110,11 @@ export const App: React.FC = () => {
             <Route index element={<AdminDashboard />} />
             <Route path="customers" element={<AdminCustomers />} />
             <Route path="staff" element={<AdminStaff />} />
+            <Route path="employees" element={<AdminEmployees />} />
+            <Route path="attendance" element={<AdminAttendance />} />
+            <Route path="leaves" element={<AdminLeaves />} />
+            <Route path="payroll" element={<AdminPayroll />} />
+            <Route path="expenses" element={<AdminExpenses />} />
             <Route path="kyc" element={<AdminKYCVerification />} />
             <Route path="chit-schemes" element={<AdminChitSchemes />} />
             <Route path="chit-applications" element={<AdminChitApplications />} />
@@ -120,4 +136,3 @@ export const App: React.FC = () => {
     </AuthProvider>
   );
 };
-

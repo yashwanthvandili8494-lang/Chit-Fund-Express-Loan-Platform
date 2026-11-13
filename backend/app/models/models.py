@@ -581,3 +581,246 @@ class CompanySetting(Base):
     foreman_commission_standard_pct = Column(Numeric(5, 2), default=Decimal('5.00'))
     max_chit_discount_pct = Column(Numeric(5, 2), default=Decimal('40.00'))
     default_loan_apr_pct = Column(Numeric(5, 2), default=Decimal('14.50'))
+
+
+# ==========================================
+# 24. BRANCHES & HRMS MODULES
+# ==========================================
+
+class AttendanceStatus(str, enum.Enum):
+    PRESENT = "PRESENT"
+    ABSENT = "ABSENT"
+    HALF_DAY = "HALF_DAY"
+    LATE = "LATE"
+    ON_LEAVE = "ON_LEAVE"
+
+class LeaveType(str, enum.Enum):
+    CASUAL = "CASUAL"
+    SICK = "SICK"
+    PAID = "PAID"
+    UNPAID = "UNPAID"
+
+class LeaveStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+class PayrollStatus(str, enum.Enum):
+    DRAFT = "DRAFT"
+    PROCESSED = "PROCESSED"
+    PAID = "PAID"
+
+# 24. Branches
+class Branch(Base):
+    __tablename__ = "branches"
+
+    id = Column(Integer, primary_key=True, index=True)
+    branch_code = Column(String(50), unique=True, index=True, nullable=False)
+    branch_name = Column(String(100), nullable=False)
+    city = Column(String(100), default="Bengaluru", nullable=False)
+    address = Column(Text, nullable=False)
+    phone = Column(String(50), default="+91 80 4912 8800")
+    manager_name = Column(String(100), nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    employees = relationship("Employee", back_populates="branch")
+    expenses = relationship("Expense", back_populates="branch")
+
+# 25. Employees (HRMS Master)
+class Employee(Base):
+    __tablename__ = "employees"
+
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(String(50), unique=True, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False)
+    full_name = Column(String(255), nullable=False)
+    phone = Column(String(20), nullable=False)
+    email = Column(String(255), nullable=False)
+    department = Column(String(100), nullable=False) # Branch Ops, Underwriting, Collections, Accounts, IT
+    designation = Column(String(100), nullable=False)
+    date_of_joining = Column(Date, nullable=False)
+    employment_status = Column(String(50), default="ACTIVE") # ACTIVE, PROBATION, RESIGNED, TERMINATED
+    emergency_contact_name = Column(String(100), nullable=True)
+    emergency_contact_phone = Column(String(20), nullable=True)
+    bank_account_masked = Column(String(50), default="••••••••5512")
+    bank_ifsc = Column(String(20), default="HDFC0001234")
+    bank_name = Column(String(100), default="HDFC Bank")
+    pan_masked = Column(String(20), default="ABCDE****F")
+    uan_epfo_masked = Column(String(50), default="1012****9988")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
+    branch = relationship("Branch", back_populates="employees")
+    attendance_records = relationship("Attendance", back_populates="employee", order_by="desc(Attendance.attendance_date)")
+    leave_applications = relationship("LeaveApplication", back_populates="employee")
+    salary_structure = relationship("SalaryStructure", back_populates="employee", uselist=False)
+    payroll_records = relationship("Payroll", back_populates="employee")
+    salary_advances = relationship("SalaryAdvance", back_populates="employee")
+
+# 26. Attendance Records
+class Attendance(Base):
+    __tablename__ = "attendance"
+
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False, index=True)
+    attendance_date = Column(Date, nullable=False, index=True)
+    check_in_time = Column(DateTime, nullable=True)
+    check_out_time = Column(DateTime, nullable=True)
+    status = Column(Enum(AttendanceStatus), default=AttendanceStatus.PRESENT, nullable=False)
+    work_hours = Column(Numeric(4, 2), default=Decimal('8.50'))
+    late_minutes = Column(Integer, default=0)
+    check_in_ip = Column(String(50), default="127.0.0.1")
+    notes = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    employee = relationship("Employee", back_populates="attendance_records")
+
+# 27. Leave Applications
+class LeaveApplication(Base):
+    __tablename__ = "leave_applications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False, index=True)
+    leave_type = Column(Enum(LeaveType), default=LeaveType.CASUAL, nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    total_days = Column(Integer, default=1, nullable=False)
+    reason = Column(Text, nullable=False)
+    status = Column(Enum(LeaveStatus), default=LeaveStatus.PENDING, nullable=False, index=True)
+    reviewed_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    review_notes = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    employee = relationship("Employee", back_populates="leave_applications")
+    reviewer = relationship("User")
+
+# 28. Salary Structures
+class SalaryStructure(Base):
+    __tablename__ = "salary_structures"
+
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("employees.id"), unique=True, nullable=False)
+    basic_salary = Column(Numeric(12, 2), nullable=False)
+    hra = Column(Numeric(12, 2), nullable=False)
+    special_allowances = Column(Numeric(12, 2), default=Decimal('0.00'))
+    conveyance_allowance = Column(Numeric(12, 2), default=Decimal('0.00'))
+    medical_allowance = Column(Numeric(12, 2), default=Decimal('0.00'))
+    gross_salary = Column(Numeric(12, 2), nullable=False)
+    pf_employee_deduction = Column(Numeric(12, 2), default=Decimal('0.00'))
+    esi_employee_deduction = Column(Numeric(12, 2), default=Decimal('0.00'))
+    professional_tax = Column(Numeric(12, 2), default=Decimal('200.00'))
+    tds_monthly = Column(Numeric(12, 2), default=Decimal('0.00'))
+    total_deductions = Column(Numeric(12, 2), nullable=False)
+    net_salary = Column(Numeric(12, 2), nullable=False)
+    effective_from = Column(Date, default=date.today)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    employee = relationship("Employee", back_populates="salary_structure")
+
+# 29. Monthly Payroll
+class Payroll(Base):
+    __tablename__ = "payroll"
+
+    id = Column(Integer, primary_key=True, index=True)
+    payroll_batch_no = Column(String(50), index=True, nullable=False)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False, index=True)
+    month = Column(Integer, nullable=False) # 1-12
+    year = Column(Integer, nullable=False)
+    total_working_days = Column(Integer, default=30)
+    days_present = Column(Integer, default=30)
+    days_absent = Column(Integer, default=0)
+    earned_basic = Column(Numeric(12, 2), nullable=False)
+    earned_hra = Column(Numeric(12, 2), nullable=False)
+    earned_allowances = Column(Numeric(12, 2), default=Decimal('0.00'))
+    bonus_incentives = Column(Numeric(12, 2), default=Decimal('0.00'))
+    gross_earned = Column(Numeric(12, 2), nullable=False)
+    deduction_pf = Column(Numeric(12, 2), default=Decimal('0.00'))
+    deduction_esi = Column(Numeric(12, 2), default=Decimal('0.00'))
+    deduction_pt = Column(Numeric(12, 2), default=Decimal('200.00'))
+    deduction_tds = Column(Numeric(12, 2), default=Decimal('0.00'))
+    advance_deduction = Column(Numeric(12, 2), default=Decimal('0.00'))
+    total_deductions = Column(Numeric(12, 2), nullable=False)
+    net_pay = Column(Numeric(12, 2), nullable=False)
+    payment_status = Column(Enum(PayrollStatus), default=PayrollStatus.PAID, nullable=False)
+    payment_reference = Column(String(100), nullable=True) # NEFT/IMPS UTR
+    paid_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    employee = relationship("Employee", back_populates="payroll_records")
+    salary_slip = relationship("SalarySlip", back_populates="payroll", uselist=False)
+
+# 30. Salary Slips (Payslips)
+class SalarySlip(Base):
+    __tablename__ = "salary_slips"
+
+    id = Column(Integer, primary_key=True, index=True)
+    payslip_number = Column(String(50), unique=True, index=True, nullable=False)
+    payroll_id = Column(Integer, ForeignKey("payroll.id"), unique=True, nullable=False)
+    employee_name = Column(String(255), nullable=False)
+    employee_code = Column(String(50), nullable=False)
+    designation = Column(String(100), nullable=False)
+    department = Column(String(100), nullable=False)
+    month_year = Column(String(50), nullable=False) # e.g. "October 2026"
+    bank_account_masked = Column(String(50), nullable=False)
+    uan_epfo = Column(String(50), nullable=True)
+    pan_masked = Column(String(20), nullable=True)
+    earnings_breakdown = Column(JSON, nullable=False)
+    deductions_breakdown = Column(JSON, nullable=False)
+    gross_earnings = Column(Numeric(12, 2), nullable=False)
+    total_deductions = Column(Numeric(12, 2), nullable=False)
+    net_pay_in_words = Column(String(255), nullable=False)
+    net_pay = Column(Numeric(12, 2), nullable=False)
+    generated_at = Column(DateTime, default=datetime.utcnow)
+
+    payroll = relationship("Payroll", back_populates="salary_slip")
+
+# 31. Salary Advances
+class SalaryAdvance(Base):
+    __tablename__ = "salary_advances"
+
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    requested_amount = Column(Numeric(12, 2), nullable=False)
+    approved_amount = Column(Numeric(12, 2), nullable=True)
+    monthly_installment = Column(Numeric(12, 2), nullable=True)
+    reason = Column(Text, nullable=False)
+    status = Column(String(50), default="PENDING") # PENDING, APPROVED, REJECTED, REPAID
+    approved_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    employee = relationship("Employee", back_populates="salary_advances")
+    approver = relationship("User")
+
+# 32. Expenses (Office / Branch Expenses)
+class Expense(Base):
+    __tablename__ = "expenses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    voucher_no = Column(String(50), unique=True, index=True, nullable=False)
+    branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False)
+    category = Column(String(100), nullable=False) # Rent, Utilities, Legal & Compliance, Office Supplies, IT Infrastructure
+    amount = Column(Numeric(12, 2), nullable=False)
+    expense_date = Column(Date, nullable=False)
+    description = Column(String(255), nullable=False)
+    vendor_name = Column(String(100), nullable=True)
+    receipt_reference = Column(String(100), nullable=True)
+    payment_mode = Column(String(50), default="BANK_TRANSFER")
+    approved_by = Column(String(100), default="Rajeshwar Rao (MD)")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    branch = relationship("Branch", back_populates="expenses")
+
+# 33. KYC Consents
+class KYCConsent(Base):
+    __tablename__ = "kyc_consents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    consent_purpose = Column(String(255), nullable=False)
+    ip_address = Column(String(50), default="127.0.0.1")
+    consented_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")

@@ -137,5 +137,69 @@ export const api = {
   getStaffMembers: () => request<any[]>('/company/staff'),
   getAllCustomers: () => request<any[]>('/company/customers'),
   getAuditLogs: () => request<any[]>('/company/audit-logs'),
+
+  // HRMS & Employees
+  getEmployees: () => request<any[]>('/employees'),
+  getMyEmployeeProfile: () => request<any>('/employees/me'),
+  addEmployee: (data: any) =>
+    request<any>('/employees', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getBranches: () => request<any[]>('/employees/branches'),
+  createBranch: (data: any) =>
+    request<any>('/employees/branches', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // Attendance
+  attendanceCheckIn: (notes?: string) =>
+    request<any>('/attendance/check-in', {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    }),
+  attendanceCheckOut: () =>
+    request<any>('/attendance/check-out', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
+  getMyAttendance: () => request<any[]>('/attendance/my-attendance'),
+  getAllAttendance: (dateStr?: string) =>
+    request<any[]>(`/attendance/all${dateStr ? `?attendance_date=${dateStr}` : ''}`),
+
+  // Leave Management
+  applyLeave: (data: { leave_type: string; start_date: string; end_date: string; reason: string }) =>
+    request<any>('/leaves/apply', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getMyLeaves: () => request<any[]>('/leaves/my-leaves'),
+  getAllLeaves: () => request<any[]>('/leaves/all'),
+  reviewLeave: (leaveId: number, data: { status: string; review_notes?: string }) =>
+    request<any>(`/leaves/${leaveId}/review`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // Payroll & Salary Slips
+  executePayrollRun: (month: number, year: number, bonus_incentives = 0) =>
+    request<any[]>('/payroll/run', {
+      method: 'POST',
+      body: JSON.stringify({ month, year, bonus_incentives }),
+    }),
+  getAllPayroll: (month?: number, year?: number) =>
+    request<any[]>(`/payroll/all${month ? `?month=${month}` : ''}${year ? `&year=${year}` : ''}`),
+  getMySalarySlips: () => request<any[]>('/payroll/my-slips'),
+  getSalarySlipById: (slipId: number) => request<any>(`/payroll/slips/${slipId}`),
+
+  // Expenses & Accounting
+  getExpenses: () => request<any[]>('/expenses'),
+  recordExpense: (data: any) =>
+    request<any>('/expenses', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getExpensesSummary: () => request<any>('/expenses/summary'),
 };
 

@@ -5,7 +5,8 @@ import {
   LayoutDashboard, Users, UserCheck, ShieldCheck, Coins,
   FileText, Landmark, Gavel, Wallet, CheckSquare, Clock,
   CreditCard, BarChart3, History, Settings, FileBadge,
-  HelpCircle, AlertCircle, ArrowUpRight
+  HelpCircle, AlertCircle, ArrowUpRight, CalendarCheck,
+  DollarSign, Receipt
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,7 +27,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ portal }) => {
   const ownerLinks: NavItem[] = [
     { to: '/admin', label: 'Dashboard Overview', icon: LayoutDashboard, exact: true },
     { to: '/admin/customers', label: 'Customer Directory', icon: Users },
-    { to: '/admin/staff', label: 'Staff Management', icon: UserCheck },
+    { to: '/admin/staff', label: 'Staff Permissions', icon: UserCheck },
+    { to: '/admin/employees', label: 'Employees & HRMS', icon: Users },
+    { to: '/admin/attendance', label: 'Attendance Roster', icon: CalendarCheck },
+    { to: '/admin/leaves', label: 'Staff Leave Requests', icon: Clock, badge: 'Desk' },
+    { to: '/admin/payroll', label: 'Payroll & Payslips', icon: DollarSign },
+    { to: '/admin/expenses', label: 'Branch Expenses', icon: Receipt },
     { to: '/admin/kyc', label: 'KYC Verification', icon: ShieldCheck, badge: 'Review' },
     { to: '/admin/chit-schemes', label: 'Chit Scheme Builder', icon: Coins },
     { to: '/admin/chit-applications', label: 'Chit Applications', icon: FileText, badge: 'New' },
@@ -43,6 +49,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ portal }) => {
 
   const staffLinks: NavItem[] = [
     { to: '/staff', label: 'Operations Desk', icon: LayoutDashboard, exact: true },
+    { to: '/staff/attendance', label: 'My Attendance', icon: CalendarCheck },
+    { to: '/staff/leaves', label: 'Leave Applications', icon: Clock },
+    { to: '/staff/salary', label: 'My Salary & Slips', icon: DollarSign },
     { to: '/staff/kyc', label: 'KYC Document Review', icon: ShieldCheck, badge: 'Action' },
     { to: '/staff/chit-applications', label: 'Chit Review Desk', icon: FileText },
     { to: '/staff/loan-applications', label: 'Loan Underwriting Desk', icon: CheckSquare },

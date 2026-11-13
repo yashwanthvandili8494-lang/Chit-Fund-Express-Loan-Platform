@@ -2,14 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import Base, engine
-from app.api.v1 import auth, kyc, chits, loans, payments, dashboard, company
+from app.api.v1 import (
+    auth, kyc, chits, loans, payments, dashboard, company,
+    employees, attendance, leaves, payroll, expenses
+)
 
 # Initialize Database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Production-Oriented Indian Chit Fund (Chit Funds Act 1982 compliant) & Loan Management Platform API",
+    description="Production-Oriented Indian Chit Fund, Digital Loan Management & Enterprise HRMS/Payroll Platform API",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -32,6 +35,11 @@ app.include_router(loans.router, prefix=settings.API_V1_STR)
 app.include_router(payments.router, prefix=settings.API_V1_STR)
 app.include_router(dashboard.router, prefix=settings.API_V1_STR)
 app.include_router(company.router, prefix=settings.API_V1_STR)
+app.include_router(employees.router, prefix=settings.API_V1_STR)
+app.include_router(attendance.router, prefix=settings.API_V1_STR)
+app.include_router(leaves.router, prefix=settings.API_V1_STR)
+app.include_router(payroll.router, prefix=settings.API_V1_STR)
+app.include_router(expenses.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
@@ -47,4 +55,3 @@ def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
-

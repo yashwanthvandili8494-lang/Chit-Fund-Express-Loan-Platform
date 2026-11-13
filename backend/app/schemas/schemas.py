@@ -375,3 +375,208 @@ class NotificationOut(BaseModel):
     class Config:
         from_attributes = True
 
+
+
+# ==========================================
+# HRMS, ATTENDANCE & PAYROLL SCHEMAS
+# ==========================================
+
+from app.models.models import AttendanceStatus, LeaveType, LeaveStatus, PayrollStatus
+
+class BranchOut(BaseModel):
+    id: int
+    branch_code: str
+    branch_name: str
+    city: str
+    address: str
+    phone: str
+    manager_name: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class BranchCreate(BaseModel):
+    branch_code: str
+    branch_name: str
+    city: str = "Bengaluru"
+    address: str
+    phone: str = "+91 80 4912 8800"
+    manager_name: Optional[str] = None
+
+class EmployeeOut(BaseModel):
+    id: int
+    employee_id: str
+    user_id: int
+    branch_id: int
+    full_name: str
+    phone: str
+    email: str
+    department: str
+    designation: str
+    date_of_joining: date
+    employment_status: str
+    bank_account_masked: str
+    bank_ifsc: str
+    bank_name: str
+    pan_masked: str
+    uan_epfo_masked: str
+    branch: Optional[BranchOut] = None
+
+    class Config:
+        from_attributes = True
+
+class EmployeeCreate(BaseModel):
+    full_name: str
+    email: str
+    phone: str
+    department: str
+    designation: str
+    branch_id: int
+    date_of_joining: date
+    password: str = "Password@123"
+    bank_account_masked: str = "••••••••5512"
+    bank_ifsc: str = "HDFC0001234"
+    bank_name: str = "HDFC Bank"
+    basic_salary: Decimal = Decimal('25000.00')
+    hra: Decimal = Decimal('10000.00')
+    special_allowances: Decimal = Decimal('5000.00')
+
+class AttendanceCheckIn(BaseModel):
+    notes: Optional[str] = None
+
+class AttendanceOut(BaseModel):
+    id: int
+    employee_id: int
+    attendance_date: date
+    check_in_time: Optional[datetime]
+    check_out_time: Optional[datetime]
+    status: AttendanceStatus
+    work_hours: Decimal
+    late_minutes: int
+    notes: Optional[str]
+
+    class Config:
+        from_attributes = True
+
+class LeaveApplyRequest(BaseModel):
+    leave_type: LeaveType = LeaveType.CASUAL
+    start_date: date
+    end_date: date
+    reason: str
+
+class LeaveReviewRequest(BaseModel):
+    status: LeaveStatus # APPROVED or REJECTED
+    review_notes: Optional[str] = None
+
+class LeaveApplicationOut(BaseModel):
+    id: int
+    employee_id: int
+    leave_type: LeaveType
+    start_date: date
+    end_date: date
+    total_days: int
+    reason: str
+    status: LeaveStatus
+    reviewed_at: Optional[datetime] = None
+    review_notes: Optional[str] = None
+    created_at: datetime
+    employee: Optional[EmployeeOut] = None
+
+    class Config:
+        from_attributes = True
+
+class SalaryStructureOut(BaseModel):
+    id: int
+    employee_id: int
+    basic_salary: Decimal
+    hra: Decimal
+    special_allowances: Decimal
+    gross_salary: Decimal
+    pf_employee_deduction: Decimal
+    esi_employee_deduction: Decimal
+    professional_tax: Decimal
+    tds_monthly: Decimal
+    total_deductions: Decimal
+    net_salary: Decimal
+    effective_from: date
+
+    class Config:
+        from_attributes = True
+
+class PayrollRunRequest(BaseModel):
+    month: int
+    year: int
+    bonus_incentives: Decimal = Decimal('0.00')
+
+class SalarySlipOut(BaseModel):
+    id: int
+    payslip_number: str
+    payroll_id: int
+    employee_name: str
+    employee_code: str
+    designation: str
+    department: str
+    month_year: str
+    bank_account_masked: str
+    uan_epfo: Optional[str] = None
+    pan_masked: Optional[str] = None
+    earnings_breakdown: dict
+    deductions_breakdown: dict
+    gross_earnings: Decimal
+    total_deductions: Decimal
+    net_pay_in_words: str
+    net_pay: Decimal
+    generated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class PayrollOut(BaseModel):
+    id: int
+    payroll_batch_no: str
+    employee_id: int
+    month: int
+    year: int
+    total_working_days: int
+    days_present: int
+    days_absent: int
+    gross_earned: Decimal
+    total_deductions: Decimal
+    net_pay: Decimal
+    payment_status: PayrollStatus
+    payment_reference: Optional[str] = None
+    paid_at: Optional[datetime] = None
+    employee: Optional[EmployeeOut] = None
+    salary_slip: Optional[SalarySlipOut] = None
+
+    class Config:
+        from_attributes = True
+
+class ExpenseCreate(BaseModel):
+    branch_id: int
+    category: str
+    amount: Decimal
+    expense_date: date
+    description: str
+    vendor_name: Optional[str] = None
+    receipt_reference: Optional[str] = None
+    payment_mode: str = "BANK_TRANSFER"
+
+class ExpenseOut(BaseModel):
+    id: int
+    voucher_no: str
+    branch_id: int
+    category: str
+    amount: Decimal
+    expense_date: date
+    description: str
+    vendor_name: Optional[str]
+    receipt_reference: Optional[str]
+    payment_mode: str
+    approved_by: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

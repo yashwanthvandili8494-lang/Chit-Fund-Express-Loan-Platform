@@ -282,3 +282,140 @@ export interface AdminStats {
   total_business_income: number;
 }
 
+
+
+// HRMS, Attendance & Payroll Types
+export interface Branch {
+  id: number;
+  branch_code: string;
+  branch_name: string;
+  city: string;
+  address: string;
+  phone: string;
+  manager_name?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Employee {
+  id: number;
+  employee_id: string;
+  user_id: number;
+  branch_id: number;
+  full_name: string;
+  phone: string;
+  email: string;
+  department: string;
+  designation: string;
+  date_of_joining: string;
+  employment_status: string;
+  bank_account_masked: string;
+  bank_ifsc: string;
+  bank_name: string;
+  pan_masked: string;
+  uan_epfo_masked: string;
+  branch?: Branch;
+}
+
+export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'HALF_DAY' | 'LATE' | 'ON_LEAVE';
+
+export interface Attendance {
+  id: number;
+  employee_id: number;
+  attendance_date: string;
+  check_in_time?: string;
+  check_out_time?: string;
+  status: AttendanceStatus;
+  work_hours: number;
+  late_minutes: number;
+  notes?: string;
+}
+
+export type LeaveType = 'CASUAL' | 'SICK' | 'PAID' | 'UNPAID';
+export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface LeaveApplication {
+  id: number;
+  employee_id: number;
+  leave_type: LeaveType;
+  start_date: string;
+  end_date: string;
+  total_days: number;
+  reason: string;
+  status: LeaveStatus;
+  reviewed_at?: string;
+  review_notes?: string;
+  created_at: string;
+  employee?: Employee;
+}
+
+export interface SalaryStructure {
+  id: number;
+  employee_id: number;
+  basic_salary: number;
+  hra: number;
+  special_allowances: number;
+  gross_salary: number;
+  pf_employee_deduction: number;
+  esi_employee_deduction: number;
+  professional_tax: number;
+  tds_monthly: number;
+  total_deductions: number;
+  net_salary: number;
+  effective_from: string;
+}
+
+export interface SalarySlip {
+  id: number;
+  payslip_number: string;
+  payroll_id: number;
+  employee_name: string;
+  employee_code: string;
+  designation: string;
+  department: string;
+  month_year: string;
+  bank_account_masked: string;
+  uan_epfo?: string;
+  pan_masked?: string;
+  earnings_breakdown: Record<string, number>;
+  deductions_breakdown: Record<string, number>;
+  gross_earnings: number;
+  total_deductions: number;
+  net_pay_in_words: string;
+  net_pay: number;
+  generated_at: string;
+}
+
+export interface Payroll {
+  id: number;
+  payroll_batch_no: string;
+  employee_id: number;
+  month: number;
+  year: number;
+  total_working_days: number;
+  days_present: number;
+  days_absent: number;
+  gross_earned: number;
+  total_deductions: number;
+  net_pay: number;
+  payment_status: 'DRAFT' | 'PROCESSED' | 'PAID';
+  payment_reference?: string;
+  paid_at?: string;
+  employee?: Employee;
+  salary_slip?: SalarySlip;
+}
+
+export interface Expense {
+  id: number;
+  voucher_no: string;
+  branch_id: number;
+  category: string;
+  amount: number;
+  expense_date: string;
+  description: string;
+  vendor_name?: string;
+  receipt_reference?: string;
+  payment_mode: string;
+  approved_by: string;
+  created_at: string;
+}
