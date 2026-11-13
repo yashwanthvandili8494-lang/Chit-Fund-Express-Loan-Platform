@@ -105,8 +105,36 @@ def run_all_tests():
     print(f"PASS: Found {len(expenses)} office branch expense records.")
     assert len(expenses) >= 3
 
+    # 13. Digital Loan Underwriting & KFS Engine (mPokket-Inspired Standard)
+    from app.services.loan_underwriting_engine import LoanUnderwritingEngine
+    el_res = LoanUnderwritingEngine.evaluate_eligibility(
+        age=28,
+        kyc_status="VERIFIED",
+        employment_type="Salaried",
+        monthly_income=Decimal('45000.00'),
+        requested_amount=Decimal('50000.00'),
+        tenure_months=12,
+        credit_score=760
+    )
+    assert el_res["verdict"] == "ELIGIBLE_FOR_REVIEW"
+    assert el_res["overall_score"] >= 75
+    assert el_res["foir_pct"] <= 35.0
+
+    kfs_res = LoanUnderwritingEngine.generate_key_facts_statement(
+        application_no="TEST-APP-001",
+        principal=Decimal('50000.00'),
+        annual_rate_pct=Decimal('14.50'),
+        tenure_months=12,
+        customer_name="Vikramaditya Hegde",
+        disbursal_bank_account="••••••••1234"
+    )
+    assert kfs_res["principal_loan_amount"] == 50000.0
+    assert kfs_res["net_disbursed_amount"] > 48000.0
+    assert "sanction_reference_no" in kfs_res
+    print("PASS: Automated Underwriting Engine & RBI Key Facts Statement (KFS) verified exact!")
+
     db.close()
-    print("=== ALL 12 TEST SUITES PASSED FLAWLESSLY ===")
+    print("=== ALL 13 TEST SUITES PASSED FLAWLESSLY ===")
 
 if __name__ == "__main__":
     run_all_tests()

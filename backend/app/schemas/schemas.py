@@ -240,8 +240,20 @@ class LoanApplyRequest(BaseModel):
     bank_name: str
 
 class LoanAppReview(BaseModel):
-    status: LoanAppStatus # APPROVED, REJECTED, DOCUMENTS_REQUIRED
+    status: LoanAppStatus # APPROVED, REJECTED, DOCUMENTS_REQUIRED, etc.
     rejection_reason: Optional[str] = None
+    internal_notes: Optional[str] = None
+    requested_document_notes: Optional[str] = None
+    assigned_staff_id: Optional[int] = None
+
+class LoanDisbursementRequest(BaseModel):
+    bank_reference_no: str
+    disbursed_amount: Optional[Decimal] = None
+    notes: Optional[str] = None
+
+class LoanAgreementSignRequest(BaseModel):
+    accept_terms: bool = True
+    ip_address: Optional[str] = "127.0.0.1"
 
 class LoanApplicationOut(BaseModel):
     id: int
@@ -260,6 +272,17 @@ class LoanApplicationOut(BaseModel):
     bank_verified: bool
     status: LoanAppStatus
     credit_score_estimate: int
+    automated_eligibility_status: Optional[str] = None
+    eligibility_score: Optional[int] = None
+    eligibility_breakdown: Optional[dict] = None
+    sanction_letter_number: Optional[str] = None
+    key_facts_statement: Optional[dict] = None
+    agreement_signed: bool = False
+    agreement_signed_at: Optional[datetime] = None
+    internal_notes: Optional[str] = None
+    requested_document_notes: Optional[str] = None
+    salary_slip_url: Optional[str] = None
+    bank_statement_url: Optional[str] = None
     approved_at: Optional[datetime]
     rejection_reason: Optional[str]
     created_at: datetime

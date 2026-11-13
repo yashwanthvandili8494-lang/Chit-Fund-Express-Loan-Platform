@@ -57,12 +57,18 @@ class PrizeDisbursementStatus(str, enum.Enum):
     ON_HOLD = "ON_HOLD"
 
 class LoanAppStatus(str, enum.Enum):
+    DRAFT = "DRAFT"
+    SUBMITTED = "SUBMITTED"
+    PENDING_KYC = "PENDING_KYC"
     PENDING = "PENDING"
     UNDER_REVIEW = "UNDER_REVIEW"
     DOCUMENTS_REQUIRED = "DOCUMENTS_REQUIRED"
+    VERIFICATION_PENDING = "VERIFICATION_PENDING"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
+    AGREEMENT_PENDING = "AGREEMENT_PENDING"
     DISBURSEMENT_PENDING = "DISBURSEMENT_PENDING"
+    DISBURSED = "DISBURSED"
     ACTIVE = "ACTIVE"
     CLOSED = "CLOSED"
     OVERDUE = "OVERDUE"
@@ -425,6 +431,18 @@ class LoanApplication(Base):
     bank_verified = Column(Boolean, default=True)
     status = Column(Enum(LoanAppStatus), default=LoanAppStatus.PENDING, nullable=False, index=True)
     credit_score_estimate = Column(Integer, default=740)
+    automated_eligibility_status = Column(String(50), default="ELIGIBLE_FOR_REVIEW") # ELIGIBLE_FOR_REVIEW, ADDITIONAL_VERIFICATION_REQUIRED, NOT_ELIGIBLE
+    eligibility_score = Column(Integer, default=85)
+    eligibility_breakdown = Column(JSON, nullable=True)
+    sanction_letter_number = Column(String(50), nullable=True)
+    key_facts_statement = Column(JSON, nullable=True)
+    agreement_signed = Column(Boolean, default=False)
+    agreement_signed_at = Column(DateTime, nullable=True)
+    assigned_staff_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    internal_notes = Column(Text, nullable=True)
+    requested_document_notes = Column(Text, nullable=True)
+    salary_slip_url = Column(String(255), nullable=True)
+    bank_statement_url = Column(String(255), nullable=True)
     reviewed_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     approved_at = Column(DateTime, nullable=True)
     rejection_reason = Column(Text, nullable=True)
@@ -433,6 +451,7 @@ class LoanApplication(Base):
     user = relationship("User", foreign_keys=[user_id], back_populates="loan_applications")
     product = relationship("LoanProduct", back_populates="applications")
     reviewer = relationship("User", foreign_keys=[reviewed_by_id])
+    assigned_staff = relationship("User", foreign_keys=[assigned_staff_id])
     loan = relationship("Loan", back_populates="application", uselist=False)
 
 # 16. Loans (Active Loan Accounts)

@@ -105,8 +105,20 @@ export const api = {
     }),
   getLoanApplications: (statusFilter?: string) =>
     request<LoanApplication[]>(`/loans/applications${statusFilter ? `?status_filter=${statusFilter}` : ''}`),
-  reviewLoanApplication: (appId: number, data: { status: string; rejection_reason?: string }) =>
+  getLoanApplicationDetails: (appId: number) =>
+    request<LoanApplication>(`/loans/applications/${appId}`),
+  reviewLoanApplication: (appId: number, data: { status: string; rejection_reason?: string; internal_notes?: string; requested_document_notes?: string }) =>
     request<LoanApplication>(`/loans/applications/${appId}/review`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  acceptLoanAgreement: (appId: number, data: { accept_terms: boolean; ip_address?: string }) =>
+    request<LoanApplication>(`/loans/applications/${appId}/accept-agreement`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  disburseLoan: (appId: number, data: { bank_reference_no: string; disbursed_amount?: number; notes?: string }) =>
+    request<any>(`/loans/applications/${appId}/disburse`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),

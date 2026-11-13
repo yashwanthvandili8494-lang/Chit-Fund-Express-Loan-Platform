@@ -17,12 +17,18 @@ export type ChitAppStatus =
   | 'ENROLLED';
 
 export type LoanAppStatus = 
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'PENDING_KYC'
   | 'PENDING' 
   | 'UNDER_REVIEW' 
   | 'DOCUMENTS_REQUIRED' 
+  | 'VERIFICATION_PENDING'
   | 'APPROVED' 
   | 'REJECTED' 
+  | 'AGREEMENT_PENDING'
   | 'DISBURSEMENT_PENDING' 
+  | 'DISBURSED'
   | 'ACTIVE' 
   | 'CLOSED' 
   | 'OVERDUE';
@@ -185,6 +191,17 @@ export interface LoanApplication {
   bank_verified: boolean;
   status: LoanAppStatus;
   credit_score_estimate: number;
+  automated_eligibility_status?: string;
+  eligibility_score?: number;
+  eligibility_breakdown?: any;
+  sanction_letter_number?: string;
+  key_facts_statement?: any;
+  agreement_signed?: boolean;
+  agreement_signed_at?: string;
+  internal_notes?: string;
+  requested_document_notes?: string;
+  salary_slip_url?: string;
+  bank_statement_url?: string;
   approved_at?: string;
   rejection_reason?: string;
   created_at: string;
