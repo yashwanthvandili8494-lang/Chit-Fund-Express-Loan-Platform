@@ -1,0 +1,22 @@
+{
+  "name": "sowbhagya-chit-fund-loan-portal",
+  "version": "1.0.0",
+  "description": "Production-Oriented Chit Fund & Loan Management Web Platform with Owner, Staff, and Customer Portals",
+  "scripts": {
+    "start:backend": "powershell -Command \"cd backend; .\\venv\\Scripts\\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000 --reload\"",
+    "start:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "test:backend": "powershell -Command \"cd backend; .\\venv\\Scripts\\python.exe run_tests.py\"",
+    "seed:backend": "powershell -Command \"cd backend; .\\venv\\Scripts\\python.exe app\\seed_data.py\""
+  },
+  "keywords": [
+    "chit-fund",
+    "loan-management",
+    "fintech",
+    "fastapi",
+    "react",
+    "karnataka-regulations"
+  ],
+  "author": "Sowbhagya Chits & FinServe Private Limited",
+  "license": "PROPRIETARY"
+}
