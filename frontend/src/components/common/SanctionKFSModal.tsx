@@ -207,3 +207,4 @@ export const SanctionKFSModal: React.FC<SanctionKFSModalProps> = ({
     </div>
   );
 };
+

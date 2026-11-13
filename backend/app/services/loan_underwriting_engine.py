@@ -162,3 +162,4 @@ class LoanUnderwritingEngine:
             "foreclosure_charges": "Nil (0%) after 3 monthly installments",
             "regulatory_declaration": "This loan sanction and Key Facts Statement conforms to RBI Digital Lending Directions and Karnataka Money Lenders Act, 1961."
         }
+
